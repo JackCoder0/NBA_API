@@ -1,28 +1,19 @@
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Query
+# from fastapi.middleware.cors import CORSMiddleware
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import commonplayerinfo, playercareerstats
 from nba_api.live.nba.endpoints import scoreboard
 import unicodedata
 
 # Criação do app FastAPI
-app = FastAPI()
-
-# Configuração do CORS (permite acesso do frontend)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Pode restringir às origens específicas (URLs) do seu frontend
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 def remove_accents(input_str):
     nfkd_form = unicodedata.normalize('NFKD', input_str)
     return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
 # Rota para buscar informações do jogador
-@app.get("/player")
+@router.get("/player")
 async def get_player_stats(name: str = Query(..., description="Nome completo do jogador")):
     # Busca o jogador pelo nome
     player_list = players.get_players()
@@ -48,7 +39,7 @@ async def get_player_stats(name: str = Query(..., description="Nome completo do 
     }
 
 # Rota para buscar os jogos do dia
-@app.get("/games")
+@router.get("/games")
 async def get_games():
     try:
         # Obtém os jogos do dia
